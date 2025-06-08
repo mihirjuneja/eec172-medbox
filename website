@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EEC172 Final Project: Smart Medication Reminder Box</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, sans-serif;
+      margin: 0;
+      padding: 0;
+      background: #f4f7f9;
+      color: #333;
+    }
+    header {
+      background: #00539C;
+      color: #fff;
+      padding: 1.5rem 1rem;
+      text-align: center;
+    }
+    nav {
+      background: #fff;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    nav ul {
+      list-style: none;
+      display: flex;
+      justify-content: center;
+      margin: 0;
+      padding: 0.5rem;
+    }
+    nav ul li {
+      margin: 0 1.5rem;
+    }
+    nav ul li a {
+      text-decoration: none;
+      color: #00539C;
+      font-weight: 600;
+      transition: color 0.2s;
+    }
+    nav ul li a:hover {
+      color: #003366;
+    }
+    section {
+      max-width: 800px;
+      margin: 2rem auto;
+      background: #fff;
+      padding: 1.5rem;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+    section h2 {
+      margin-top: 0;
+      color: #00539C;
+      border-bottom: 2px solid #00539C;
+      padding-bottom: 0.3rem;
+    }
+    h3 {
+      color: #00539C;
+      margin-bottom: 0.5rem;
+    }
+    ul, table {
+      margin-top: 1rem;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    th, td {
+      border: 1px solid #ddd;
+      padding: 0.75rem;
+      text-align: left;
+    }
+    th {
+      background: #f0f0f0;
+    }
+    .video-container {
+      position: relative;
+      padding-bottom: 56.25%;
+      height: 0;
+      overflow: hidden;
+      margin-top: 1rem;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    .video-container iframe {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      border: 0;
+      border-radius: 8px;
+    }
+    footer {
+      text-align: center;
+      padding: 1rem;
+      background: #fff;
+      font-size: 0.9rem;
+      color: #777;
+      border-top: 1px solid #ddd;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>Smart Medication Reminder Box</h1>
+    <p>CC3200-based prototype with real-time reminders and AWS IoT logging</p>
+    <p><strong>Team:</strong> Mihir Juneja &amp; Frank Tan</p>
+  </header>
+
+  <nav>
+    <ul>
+      <li><a href="#description">Description</a></li>
+      <li><a href="#design">Design</a></li>
+      <li><a href="#implementation">Implementation</a></li>
+      <li><a href="#bom">BOM</a></li>
+      <li><a href="#challenges">Challenges</a></li>
+      <li><a href="#future">Future Work</a></li>
+      <li><a href="#webpage">Video</a></li>
+    </ul>
+  </nav>
+
+  <section id="description">
+    <h2>Description</h2>
+    <p>The Smart Medication Reminder Box assists users with timely medication by lighting the correct compartment and buzzing at scheduled times. User confirmations (via IR remote and button) log doses as successful or missed, with entries saved locally and sent to AWS IoT for remote monitoring.</p>
+  </section>
+
+  <section id="design">
+    <h2>Design</h2>
+    <h3>Functional Specification</h3>
+    <ul>
+      <li><strong>IDLE</strong>: Await scheduled time.</li>
+      <li><strong>REMINDING</strong>: Flash LED and sound buzzer.</li>
+      <li><strong>LOG SUCCESS</strong>: On user confirmation.</li>
+      <li><strong>LOG FAILURE</strong>: On timeout without confirmation.</li>
+      <li>Return to IDLE.</li>
+    </ul>
+    <h3>System Architecture</h3>
+    <ul>
+      <li>CC3200 MCU (core logic)</li>
+      <li>DS1307 RTC via I2C</li>
+      <li>128×64 OLED via SPI</li>
+      <li>IR receiver &amp; confirm button on GPIO</li>
+      <li>LEDs &amp; buzzer on GPIO</li>
+      <li>Wi-Fi to AWS IoT</li>
+    </ul>
+  </section>
+
+  <section id="implementation">
+    <h2>Implementation</h2>
+    <h3>RTC Interface</h3>
+    <ul>
+      <li>SDA→P1.9, SCL→P1.10; BCD-to-binary conversion &amp; error checks.</li>
+    </ul>
+    <h3>OLED Display</h3>
+    <ul>
+      <li>MOSI→P2.6, SCK→P1.7; SSD1351 driver for text/graphics.</li>
+    </ul>
+    <h3>IR Receiver</h3>
+    <ul>
+      <li>P2.2 input; NEC protocol decoding via SysTick.</li>
+    </ul>
+    <h3>LEDs &amp; Buzzer</h3>
+    <ul>
+      <li>GPIO-driven indicators &amp; alerts.</li>
+    </ul>
+    <h3>AWS IoT</h3>
+    <p>JSON events sent over HTTPS; AWS rules trigger caregiver alerts.</p>
+  </section>
+
+  <section id="bom">
+    <h2>Bill of Materials</h2>
+    <table>
+      <thead>
+        <tr><th>Component</th><th>Qty</th><th>Cost</th><th>Source</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>CC3200 MCU</td><td>1</td><td>–</td><td>Lab</td></tr>
+        <tr><td>OLED Display 128×64</td><td>1</td><td>14.00</td><td>Lab</td></tr>
+        <tr><td>DS1307 RTC Module</td><td>1</td><td>5.00</td><td>Amazon</td></tr>
+        <tr><td>IR Receiver</td><td>1</td><td>2.50</td><td>Lab</td></tr>
+        <tr><td>Buzzer</td><td>1</td><td>1.00</td><td>Kit</td></tr>
+        <tr><td>LEDs</td><td>3</td><td>0.30</td><td>Kit</td></tr>
+        <tr><td>Resistors &amp; Caps</td><td>Varies</td><td>~1.00</td><td>Lab</td></
+      </tbody>
+    </table>
+  </section>
+
+  <section id="challenges">
+    <h2>Challenges</h2>
+    <ul>
+      <li><strong>RTC Drift</strong>: Fixed via periodic calibration.</li>
+      <li><strong>Network Issues</strong>: Added retries &amp; local buffering.</li>
+    </ul>
+  </section>
+
+  <section id="future">
+    <h2>Future Work</h2>
+    <ul>
+      <li>Adaptive ML-based scheduling.</li>
+      <li>BLE support &amp; mobile app.</li>
+      <li>Extended health metrics.</li>
+    </ul>
+  </section>
+
+  <section id="webpage">
+    <h2>Video Demo</h2>
+    <div class="video-container">
+      <iframe src="https://www.youtube.com/embed/9QChoyurSDU" allowfullscreen></iframe>
+    </div>
+  </section>
+
+  <footer>
+    <p>&copy; 2025 Mihir Juneja &amp; Frank Tan</p>
+  </footer>
+
+</body>
+</html>
